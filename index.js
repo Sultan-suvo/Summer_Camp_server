@@ -64,24 +64,24 @@ async function run() {
       next()
     }
 
-    app.get('/users' ,verifyJWT,verifyAdmin, async (req,res) => {
+    app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result)
     })
 
     app.post('/users', async (req, res) => {
       const user = req.body;
-      const query = {email : user.email}
+      const query = { email: user.email }
       const existingUser = await usersCollection.findOne(query)
-      
-      if(existingUser){
-        return res.send({message : 'User already exists'})
+
+      if (existingUser) {
+        return res.send({ message: 'User already exists' })
       }
       const result = await usersCollection.insertOne(user)
       res.send(result)
     })
 
-    
+
     app.get('/users/admin/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
 
@@ -122,6 +122,21 @@ async function run() {
       res.send(result)
     })
 
+
+
+    app.get('/users/instructors', async (req, res) => {
+      try {
+        const instructors = await usersCollection.find({ role: 'instructor' }).toArray();
+        res.send(instructors);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: true, message: 'Internal server error' });
+      }
+    });
+
+  
+
+
     app.patch('/users/instructor/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -133,6 +148,7 @@ async function run() {
       const result = await usersCollection.updateOne(filter, updateDoc);
       res.send(result)
     })
+
 
     app.get('/allClasses', async (req, res) => {
       const result = await allClassesCollection.find().toArray();

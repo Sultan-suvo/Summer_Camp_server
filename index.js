@@ -6,6 +6,7 @@ const app = express()
 const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 5000
 
+
 app.use(cors())
 app.use(express.json())
 
@@ -42,7 +43,7 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("songDb").collection("users");
-    const allClassesCollection = client.db("songDb").collection("allClasses");
+    const addClassesCollection = client.db("songDb").collection("addClasses");
     const popularClassesCollection = client.db("songDb").collection("classes");
     const instructorCollection = client.db("songDb").collection("instructor");
     const allinstructorsCollection = client.db("songDb").collection("allinstructors");
@@ -134,7 +135,7 @@ async function run() {
       }
     });
 
-  
+
 
 
     app.patch('/users/instructor/:id', async (req, res) => {
@@ -150,10 +151,64 @@ async function run() {
     })
 
 
-    app.get('/allClasses', async (req, res) => {
-      const result = await allClassesCollection.find().toArray();
+    app.get('/addClasses', async (req, res) => {
+      const result = await addClassesCollection.find().toArray();
       res.send(result)
     })
+
+    app.post('/addClasses', async (req, res) => {
+      const item = req.body;
+      const result = await addClassesCollection.insertOne(item)
+      res.send(result)
+    })
+
+
+    // Assuming you have the following route for updating the class status
+    app.patch('/addClasses/:id', verifyJWT, verifyAdmin, async (req, res) => {
+      const classId = req.params.id;
+      const status = 'approved'; // Update the status to "approved"
+    
+      try {
+        const filter = { _id: new ObjectId(classId) };
+        const updateDoc = { $set: { status } };
+        const result = await addClassesCollection.updateOne(filter, updateDoc);
+    
+        if (result.modifiedCount === 1) {
+          res.send({ success: true, message: 'Class status updated to "approved"' });
+        } else {
+          res.status(404).send({ success: false, message: 'Class not found' });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ success: false, message: 'Failed to update class status' });
+      }
+    });
+    
+
+
+    app.patch('/addClasses/:id/deny', verifyJWT, verifyAdmin, async (req, res) => {
+      const classId = req.params.id;
+      const status = 'denied'; // Update the status to "denied"
+    
+      try {
+        const filter = { _id: new ObjectId(classId) };
+        const updateDoc = { $set: { status } };
+        const result = await addClassesCollection.updateOne(filter, updateDoc);
+    
+        if (result.modifiedCount === 1) {
+          res.send({ success: true, message: 'Class status updated to "denied"' });
+        } else {
+          res.status(404).send({ success: false, message: 'Class not found' });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ success: false, message: 'Failed to update class status' });
+      }
+    });
+    
+    
+
+
 
     app.get('/classes', async (req, res) => {
       const result = await popularClassesCollection.find().toArray();

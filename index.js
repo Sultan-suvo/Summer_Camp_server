@@ -167,12 +167,12 @@ async function run() {
     app.patch('/addClasses/:id', verifyJWT, verifyAdmin, async (req, res) => {
       const classId = req.params.id;
       const status = 'approved'; // Update the status to "approved"
-    
+
       try {
         const filter = { _id: new ObjectId(classId) };
         const updateDoc = { $set: { status } };
         const result = await addClassesCollection.updateOne(filter, updateDoc);
-    
+
         if (result.modifiedCount === 1) {
           res.send({ success: true, message: 'Class status updated to "approved"' });
         } else {
@@ -183,18 +183,18 @@ async function run() {
         res.status(500).send({ success: false, message: 'Failed to update class status' });
       }
     });
-    
+
 
 
     app.patch('/addClasses/:id/deny', verifyJWT, verifyAdmin, async (req, res) => {
       const classId = req.params.id;
       const status = 'denied'; // Update the status to "denied"
-    
+
       try {
         const filter = { _id: new ObjectId(classId) };
         const updateDoc = { $set: { status } };
         const result = await addClassesCollection.updateOne(filter, updateDoc);
-    
+
         if (result.modifiedCount === 1) {
           res.send({ success: true, message: 'Class status updated to "denied"' });
         } else {
@@ -205,8 +205,17 @@ async function run() {
         res.status(500).send({ success: false, message: 'Failed to update class status' });
       }
     });
-    
-    
+
+
+app.get('/classes', async (req, res) => {
+  try {
+    const approvedClasses = await addClassesCollection.find({ status: 'approved' }).toArray();
+    res.send(approvedClasses);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: true, message: 'Internal server error' });
+  }
+});
 
 
 

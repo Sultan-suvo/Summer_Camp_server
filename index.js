@@ -218,11 +218,6 @@ async function run() {
     });
 
 
-    app.get('/classes', async (req, res) => {
-      const result = await popularClassesCollection.find().toArray();
-      res.send(result)
-    })
-
     app.get('/instructor', async (req, res) => {
       const result = await instructorCollection.find().toArray();
       res.send(result)

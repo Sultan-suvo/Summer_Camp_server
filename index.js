@@ -207,16 +207,15 @@ async function run() {
     });
 
 
-app.get('/classes', async (req, res) => {
-  try {
-    const approvedClasses = await addClassesCollection.find({ status: 'approved' }).toArray();
-    res.send(approvedClasses);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: true, message: 'Internal server error' });
-  }
-});
-
+    app.get('/classes', async (req, res) => {
+      try {
+        const approvedClasses = await addClassesCollection.find({ status: 'approved' }).toArray();
+        res.send(approvedClasses);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: true, message: 'Internal server error' });
+      }
+    });
 
 
     app.get('/classes', async (req, res) => {

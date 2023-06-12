@@ -47,6 +47,7 @@ async function run() {
     const popularClassesCollection = client.db("songDb").collection("classes");
     const instructorCollection = client.db("songDb").collection("instructor");
     const allinstructorsCollection = client.db("songDb").collection("allinstructors");
+    const seletcetedClassCollection= client.db("songDb").collection("selectedclass");
 
 
     app.post('/jwt', (req, res) => {
@@ -215,6 +216,27 @@ async function run() {
         console.error(error);
         res.status(500).send({ error: true, message: 'Internal server error' });
       }
+    });
+
+    app.get("/selectedclass", async (req, res) => {
+      const email = req.query.email;
+      const query = { userEmail: email };
+      const result = await seletcetedClassCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/selectedclass", async (req, res) => {
+      const selectedClass = req.body;
+      const result = await seletcetedClassCollection.insertOne(selectedClass);
+      res.send(result);
+    });
+
+    app.delete("/selectedclass/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await seletcetedClassCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+      res.send(result);
     });
 
 

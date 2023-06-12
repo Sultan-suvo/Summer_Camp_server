@@ -40,7 +40,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const usersCollection = client.db("songDb").collection("users");
     const addClassesCollection = client.db("songDb").collection("addClasses");
@@ -170,11 +170,6 @@ async function run() {
       const result = await addClassesCollection.insertOne(item)
       res.send(result)
     })
-
-
-
-
-
 
 
     // Assuming you have the following route for updating the class status

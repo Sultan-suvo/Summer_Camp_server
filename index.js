@@ -1,11 +1,11 @@
 const express = require('express')
 const cors = require('cors')
+const stripe = require("stripe")('sk_test_51NF8Y4HIoj6wj6vPnUBuJwRJwTTpLEHFPqzgqmvKRLZFiSicGCV2B8DOHGeaZ4DgrKu39pdErMv3JFwMVNgA0zcO00AXPiFMeA');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express()
 const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 5000
-
 
 app.use(cors())
 app.use(express.json())
@@ -48,6 +48,7 @@ async function run() {
     const instructorCollection = client.db("songDb").collection("instructor");
     const allinstructorsCollection = client.db("songDb").collection("allinstructors");
     const seletcetedClassCollection = client.db("songDb").collection("selectedclass");
+    const paymentsCollection = client.db("songDb").collection("payment");
 
 
     app.post('/jwt', (req, res) => {
@@ -171,7 +172,7 @@ async function run() {
     })
 
 
-    
+
 
 
 
@@ -233,7 +234,7 @@ async function run() {
       const result = await addClassesCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
-    
+
 
 
     app.get('/classes', async (req, res) => {
@@ -264,6 +265,25 @@ async function run() {
       const result = await seletcetedClassCollection.deleteOne({
         _id: new ObjectId(id),
       });
+      res.send(result);
+    });
+
+
+    app.post("/create-payment-intent", verifyJWT, async (req, res) => {
+      const { price } = req.body;
+      const amount = price * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: price * amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+      res.send({ clientSecret: paymentIntent.client_secret });
+    });
+
+
+    app.post("/paymenthistory", verifyJWT, async (req, res) => {
+      const payment = req.body;
+      const result = await paymentsCollection.insertOne(payment);
       res.send(result);
     });
 

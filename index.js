@@ -47,7 +47,7 @@ async function run() {
     const popularClassesCollection = client.db("songDb").collection("classes");
     const instructorCollection = client.db("songDb").collection("instructor");
     const allinstructorsCollection = client.db("songDb").collection("allinstructors");
-    const seletcetedClassCollection= client.db("songDb").collection("selectedclass");
+    const seletcetedClassCollection = client.db("songDb").collection("selectedclass");
 
 
     app.post('/jwt', (req, res) => {
@@ -137,8 +137,6 @@ async function run() {
     });
 
 
-
-
     app.patch('/users/instructor/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -157,11 +155,25 @@ async function run() {
       res.send(result)
     })
 
+
+    app.get('/instructor/classes', verifyJWT, async (req, res) => {
+      const instructorEmail = req.decoded.email;
+      const query = { instructorEmail };
+      const result = await addClassesCollection.find(query).toArray();
+      res.send(result);
+    });
+
+
     app.post('/addClasses', async (req, res) => {
       const item = req.body;
       const result = await addClassesCollection.insertOne(item)
       res.send(result)
     })
+
+
+    
+
+
 
 
     // Assuming you have the following route for updating the class status
@@ -206,6 +218,22 @@ async function run() {
         res.status(500).send({ success: false, message: 'Failed to update class status' });
       }
     });
+
+
+    app.patch("/insertFeedback/:id", async (req, res) => {
+      const id = req.params.id;
+      const feedback = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          feedback: feedback,
+        },
+      };
+
+      const result = await addClassesCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+    
 
 
     app.get('/classes', async (req, res) => {

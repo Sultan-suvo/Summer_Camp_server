@@ -280,6 +280,12 @@ async function run() {
       res.send({ clientSecret: paymentIntent.client_secret });
     });
 
+    app.get('/paymenthistory/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await paymentsCollection.find(query).toArray();
+      res.send(result);
+    });
 
     app.post("/paymenthistory", verifyJWT, async (req, res) => {
       const payment = req.body;
